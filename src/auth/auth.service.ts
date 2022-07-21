@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/entities/User';
@@ -27,7 +31,7 @@ export class AuthService {
 
       return { accessToken };
     } else {
-      throw new NotFoundException();
+      throw new UnauthorizedException('로그인을 실패했습니다.');
     }
   }
 }
