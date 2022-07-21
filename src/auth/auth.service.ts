@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/entities/User';
@@ -12,7 +12,22 @@ export class AuthService {
     @InjectRepository(User) private repository: Repository<User>,
   ) {}
 
-  signUp(authDto: AuthDto) {
-    return this.repository.save(authDto);
+  async signUp(authDto: AuthDto) {
+    return await this.repository.save(authDto);
+  }
+
+  async signIn(authDto: AuthDto) {
+    const { email, pwd } = authDto;
+    const user = await this.repository.findOne({
+      where: { email: email, pwd: pwd },
+    });
+
+    if (user) {
+      const accessToken = await this.jwtService.sign({ data: email });
+
+      return { accessToken };
+    } else {
+      throw new NotFoundException();
+    }
   }
 }
