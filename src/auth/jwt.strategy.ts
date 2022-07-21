@@ -12,7 +12,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     private repository: Repository<User>,
   ) {
     super({
-      secret: process.env.JWT_ACCESS_TOKEN_SECRET,
+      secretOrKey: process.env.JWT_ACCESS_TOKEN_SECRET,
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false, //토큰 만료시 바로 strategy에서 에러 리턴 처리 (ture:에러처리 안함)
     });
