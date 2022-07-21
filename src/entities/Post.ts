@@ -27,9 +27,6 @@ export class Post {
   tag: string;
 
   @Column()
-  writer: string;
-
-  @Column()
   views: number;
 
   @Column()
