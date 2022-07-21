@@ -22,8 +22,9 @@ export class AuthService {
 
   async signIn(authDto: AuthDto) {
     const { email, pwd } = authDto;
-    const user = await this.repository.findOne({
-      where: { email: email, pwd: pwd },
+    const user = await this.repository.findOneBy({
+      email: email,
+      pwd: pwd,
     });
 
     if (user) {
