@@ -12,12 +12,12 @@ export class Token {
   @Column()
   token: string;
 
-  @Column()
+  @Column({ name: 'expired_at' })
   expiredAt: Date;
 
-  @Column()
+  @Column({ name: 'created_at' })
   createdAt: Date;
 
-  @Column()
+  @Column({ name: 'updated_at' })
   updatedAt: Date;
 }
