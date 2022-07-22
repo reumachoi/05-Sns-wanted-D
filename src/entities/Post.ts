@@ -26,10 +26,10 @@ export class Post {
   @Column()
   tag: string;
 
-  @Column()
+  @Column({ default: 0 })
   views: number;
 
-  @Column()
+  @Column({ default: 0 })
   likes: number;
 
   @CreateDateColumn()
