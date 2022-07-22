@@ -15,6 +15,11 @@ export class PostController {
     return await this.service.createPost(postDto, user);
   }
 
+  @Get()
+  async getAllPost() {
+    return await this.service.getAllPost();
+  }
+
   @Get('/:id')
   async getOnePost(@Param('id') id: number) {
     return await this.service.getOnePost(id);

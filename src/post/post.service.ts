@@ -4,6 +4,7 @@ import { Post } from 'src/entities/Post';
 import { Repository } from 'typeorm';
 import { User } from '../entities/User';
 import { PostDto } from './dto/post.dto';
+import { PostGetAllDto } from './dto/post.get-all.dto';
 
 @Injectable()
 export class PostService {
@@ -21,6 +22,16 @@ export class PostService {
     });
 
     return await this.repository.save(post);
+  }
+
+  async getAllPost() {
+    const results = await this.repository
+      .createQueryBuilder('post')
+      .select(['title', 'tag', 'created_at', 'likes', 'views', 'userId'])
+      .orderBy('updated_at', 'DESC')
+      .getRawMany();
+
+    return results;
   }
 
   async getOnePost(id: number) {
