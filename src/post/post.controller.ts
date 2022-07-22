@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -36,5 +37,10 @@ export class PostController {
   @Delete('/:id')
   async deletePost(@Param('id') id: number) {
     return await this.service.deletePost(id);
+  }
+
+  @Patch('/:id/restore')
+  async restorePost(@Param('id') id: number) {
+    return await this.service.restorePost(id);
   }
 }

@@ -45,4 +45,8 @@ export class PostService {
   async deletePost(id: number) {
     await this.repository.softDelete({ id: id });
   }
+
+  async restorePost(id: number) {
+    await this.repository.restore({ id: id });
+  }
 }
