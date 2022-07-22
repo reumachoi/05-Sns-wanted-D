@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { PostService } from './post.service';
@@ -12,7 +12,11 @@ export class PostController {
   @Post()
   @UseGuards(AuthGuard('jwt'))
   async createPost(@Body() postDto: PostDto, @GetUser() user: User) {
-    console.log(postDto);
     return await this.service.createPost(postDto, user);
+  }
+
+  @Get('/:id')
+  async getOnePost(@Param('id') id: number) {
+    return await this.service.getOnePost(id);
   }
 }
