@@ -20,10 +20,13 @@ export class User {
   @Column()
   pwd: string;
 
-  @CreateDateColumn()
+  @Column()
+  nickname: string;
+
+  @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
-  @DeleteDateColumn()
+  @DeleteDateColumn({ name: 'deleted_at' })
   deletedAt: Date;
 
   @OneToMany(() => Post, (post) => post.user)
