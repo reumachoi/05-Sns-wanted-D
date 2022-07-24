@@ -34,6 +34,16 @@ export class PostController {
     return await this.service.getOnePost(id);
   }
 
+  @Patch('/:id')
+  @UseGuards(AuthGuard('jwt'))
+  async updatePost(
+    @Param('id') id: number,
+    @Body() postDto: PostDto,
+    @GetUser() user: User,
+  ) {
+    return await this.service.updatePost(id, postDto, user);
+  }
+
   @Delete('/:id')
   async deletePost(@Param('id') id: number) {
     return await this.service.deletePost(id);
