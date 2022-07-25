@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from 'src/entities/Post';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { User } from '../entities/User';
 import { PostDto } from './dto/post.dto';
 
@@ -30,16 +30,22 @@ export class PostService {
 
   async getAllPost() {
     const results = await this.repository
-      .createQueryBuilder('post')
+      .createQueryBuilder()
       .select(['title', 'tag', 'created_at', 'likes', 'views', 'userId'])
-      .orderBy('updated_at', 'DESC')
+      .where('deleted_at IS NULL')
       .getRawMany();
 
     return results;
   }
 
   async getOnePost(id: number) {
-    const result = await this.repository.findOneBy({ id: id });
+    const result = await this.repository
+      .createQueryBuilder()
+      .select()
+      .where('id = :id', { id: id })
+      .andWhere('deleted_at IS NULL')
+      .getRawOne();
+    console.log(result);
     if (!result) {
       throw new NotFoundException('해당 게시글을 찾을 수 없습니다.');
     }
@@ -51,6 +57,7 @@ export class PostService {
       .createQueryBuilder('post')
       .leftJoinAndSelect('post.user', 'user')
       .where('post.id = :id', { id: id })
+      .andWhere('post.deleted_at IS NULL')
       .getOne();
 
     if (!post) {
@@ -74,7 +81,7 @@ export class PostService {
       .where('post.id = :id', { id: id })
       .execute();
 
-    return result;
+    return result.affected === 1 ? '글 수정 성공!' : '글 수정 실패!';
   }
 
   async deletePost(id: number) {
