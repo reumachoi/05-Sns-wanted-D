@@ -39,13 +39,21 @@ export class PostService {
   }
 
   async getOnePost(id: number) {
+    await this.repository
+      .createQueryBuilder()
+      .update(Post)
+      .set({ views: () => 'views + 1' })
+      .where('id = :id', { id: id })
+      .andWhere('deleted_at IS NULL')
+      .execute();
+
     const result = await this.repository
       .createQueryBuilder()
       .select()
       .where('id = :id', { id: id })
       .andWhere('deleted_at IS NULL')
-      .getRawOne();
-    console.log(result);
+      .getOne();
+
     if (!result) {
       throw new NotFoundException('해당 게시글을 찾을 수 없습니다.');
     }
