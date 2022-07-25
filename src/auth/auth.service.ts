@@ -1,13 +1,10 @@
-import {
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/entities/User';
 import { Repository } from 'typeorm';
-import { AuthDto } from './dto/auth.dto';
+import { SignUpDto } from './dto/sign-up.dto';
+import { SignInDto } from './dto/sign-in.dto';
 
 @Injectable()
 export class AuthService {
@@ -16,21 +13,22 @@ export class AuthService {
     @InjectRepository(User) private repository: Repository<User>,
   ) {}
 
-  async signUp(authDto: AuthDto) {
-    return await this.repository.save(authDto);
+  async signUp(signUpDto: SignUpDto) {
+    return await this.repository.save(signUpDto);
   }
 
-  async signIn(authDto: AuthDto) {
-    const { email, pwd } = authDto;
+  async signIn(signInDto: SignInDto) {
+    const { email, pwd } = signInDto;
+
     const user = await this.repository.findOneBy({
       email: email,
       pwd: pwd,
     });
 
     if (user) {
-      const accessToken = await this.jwtService.sign({ data: email });
-
-      return { accessToken };
+      const accessToken = await this.makeAccessToken(user.id);
+      const refreshToken = await this.makeRefreshToken(user.id);
+      return { accessToken, refreshToken };
     } else {
       throw new UnauthorizedException('로그인을 실패했습니다.');
     }
