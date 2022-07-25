@@ -92,13 +92,57 @@ export class PostService {
     return result.affected === 1 ? '글 수정 성공!' : '글 수정 실패!';
   }
 
-  async deletePost(id: number) {
-    const result = await this.repository.softDelete({ id: id });
+  async deletePost(id: number, user: User) {
+    const data = await this.repository
+      .createQueryBuilder('post')
+      .leftJoinAndSelect('post.user', 'user')
+      .where('post.id = :id', { id: id })
+      .getOne();
+
+    if (data.user.id !== user.id) {
+      throw new ForbiddenException(
+        '게시글 작성자가 아니므로 삭제를 실패했습니다.',
+      );
+    }
+
+    // 이미 삭제된 글을 삭제하려는 경우
+    if (data.deletedAt != null) {
+      throw new ForbiddenException('해당 게시글을 삭제할 수 없습니다.');
+    }
+
+    const result = await this.repository
+      .createQueryBuilder()
+      .update(Post)
+      .set({ deletedAt: new Date() })
+      .where('post.id = :id', { id: id })
+      .execute();
     return result.affected === 1 ? '글 삭제 성공!' : '글 삭제 실패!';
   }
 
-  async restorePost(id: number) {
-    const result = await this.repository.restore({ id: id });
+  async restorePost(id: number, user: User) {
+    const data = await this.repository
+      .createQueryBuilder('post')
+      .leftJoinAndSelect('post.user', 'user')
+      .where('post.id = :id', { id: id })
+      .getOne();
+
+    if (data.user.id !== user.id) {
+      throw new ForbiddenException(
+        '게시글 작성자가 아니므로 복구를 실패했습니다.',
+      );
+    }
+
+    // 삭제된 글이 아닌 경우
+    if (data.deletedAt == null) {
+      throw new ForbiddenException('해당 게시글을 복구할 수 없습니다.');
+    }
+
+    const result = await this.repository
+      .createQueryBuilder()
+      .update(Post)
+      .set({ deletedAt: null })
+      .where('post.id = :id', { id: id })
+      .execute();
     return result.affected === 1 ? '글 복구 성공!' : '글 복구 실패!';
   }
 }

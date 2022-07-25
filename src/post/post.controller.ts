@@ -46,14 +46,16 @@ export class PostController {
   }
 
   @Delete('/:id')
-  async deletePost(@Param('id') id: number) {
-    const status = await this.service.deletePost(id);
+  @UseGuards(AuthGuard('jwt'))
+  async deletePost(@Param('id') id: number, @GetUser() user: User) {
+    const status = await this.service.deletePost(id, user);
     return { status: status };
   }
 
   @Patch('/:id/restore')
-  async restorePost(@Param('id') id: number) {
-    const status = await this.service.restorePost(id);
+  @UseGuards(AuthGuard('jwt'))
+  async restorePost(@Param('id') id: number, @GetUser() user: User) {
+    const status = await this.service.restorePost(id, user);
     return { status: status };
   }
 }
