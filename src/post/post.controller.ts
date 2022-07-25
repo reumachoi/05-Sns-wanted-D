@@ -58,4 +58,11 @@ export class PostController {
     const status = await this.service.restorePost(id, user);
     return { status: status };
   }
+
+  @Get('/:id/like')
+  @UseGuards(AuthGuard('jwt'))
+  async likePost(@Param('id') id: number, @GetUser() user: User) {
+    const status = await this.service.likePost(id, user);
+    return { status: status };
+  }
 }
