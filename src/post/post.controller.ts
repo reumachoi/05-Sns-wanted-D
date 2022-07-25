@@ -41,16 +41,19 @@ export class PostController {
     @Body() postDto: PostDto,
     @GetUser() user: User,
   ) {
-    return await this.service.updatePost(id, postDto, user);
+    const status = await this.service.updatePost(id, postDto, user);
+    return { status: status };
   }
 
   @Delete('/:id')
   async deletePost(@Param('id') id: number) {
-    return await this.service.deletePost(id);
+    const status = await this.service.deletePost(id);
+    return { status: status };
   }
 
   @Patch('/:id/restore')
   async restorePost(@Param('id') id: number) {
-    return await this.service.restorePost(id);
+    const status = await this.service.restorePost(id);
+    return { status: status };
   }
 }

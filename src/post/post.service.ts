@@ -85,10 +85,12 @@ export class PostService {
   }
 
   async deletePost(id: number) {
-    await this.repository.softDelete({ id: id });
+    const result = await this.repository.softDelete({ id: id });
+    return result.affected === 1 ? '글 삭제 성공!' : '글 삭제 실패!';
   }
 
   async restorePost(id: number) {
-    await this.repository.restore({ id: id });
+    const result = await this.repository.restore({ id: id });
+    return result.affected === 1 ? '글 복구 성공!' : '글 복구 실패!';
   }
 }
