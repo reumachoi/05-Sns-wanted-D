@@ -20,7 +20,7 @@ export class User {
   @Column()
   pwd: string;
 
-  @Column()
+  @Column({ unique: true })
   nickname: string;
 
   @CreateDateColumn({ name: 'created_at' })
