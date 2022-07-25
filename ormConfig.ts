@@ -15,7 +15,7 @@ const config: TypeOrmModuleOptions = {
   entities: [User, Token, Post],
   autoLoadEntities: true,
   charset: 'utf8mb4',
-  synchronize: true,
+  synchronize: false,
   logging: true,
   migrationsRun: false,
 };
