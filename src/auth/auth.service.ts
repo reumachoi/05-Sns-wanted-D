@@ -33,4 +33,12 @@ export class AuthService {
       throw new UnauthorizedException('로그인을 실패했습니다.');
     }
   }
+
+  async makeAccessToken(userId: number) {
+    const payload = { userId };
+    return await this.jwtService.sign(payload, {
+      secret: process.env.JWT_ACCESS_TOKEN_SECRET,
+      expiresIn: `${process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME}h`,
+    });
+  }
 }
