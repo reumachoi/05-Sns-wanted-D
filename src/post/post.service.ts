@@ -33,9 +33,9 @@ export class PostService {
     return await this.repository.save(post);
   }
 
-  async getAllPost(order: string, search: string, tag: string) {
+  async getAllPost(order = 'created_at', search: string, tag: string) {
     if (!order && !search && !tag) {
-      // 따로 세부설정없이 전체 조회
+      // 따로 세부설정없이 전체조회
       const results = await this.repository
         .createQueryBuilder()
         .select([
@@ -52,6 +52,7 @@ export class PostService {
 
       return results;
     } else {
+      // 정렬, 제목 검색, 해쉬태그 검색 일괄조건 전체조회
       const results = await this.repository
         .createQueryBuilder()
         .select([
@@ -67,10 +68,11 @@ export class PostService {
         .andWhere('title like :search', {
           search: `%${search}%`,
         })
-        .orderBy(`${order}`, 'DESC')
+        .andWhere('tag like :tag', { tag: `%#${tag}%` })
+        .orderBy(`${order}`, 'DESC') // 조회수, 좋아요수 정렬시 동일순위인경우 최신순 정렬
+        .addOrderBy('created_at', 'DESC')
         .getRawMany();
 
-      // .andWhere('tag in (:tag)', { tag: tag })
       return results;
     }
   }
