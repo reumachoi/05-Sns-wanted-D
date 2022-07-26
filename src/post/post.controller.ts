@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -25,8 +26,12 @@ export class PostController {
   }
 
   @Get()
-  async getAllPost() {
-    return await this.service.getAllPost();
+  async getAllPost(
+    @Query('order') order: string,
+    @Query('search') search: string,
+    @Query('tag') tag: string,
+  ) {
+    return await this.service.getAllPost(order, search, tag);
   }
 
   @Get('/:id')

@@ -33,22 +33,46 @@ export class PostService {
     return await this.repository.save(post);
   }
 
-  async getAllPost() {
-    const results = await this.repository
-      .createQueryBuilder()
-      .select([
-        'title',
-        'content',
-        'tag',
-        'created_at',
-        'likes',
-        'views',
-        'userId',
-      ])
-      .where('deleted_at IS NULL')
-      .getRawMany();
+  async getAllPost(order: string, search: string, tag: string) {
+    if (!order && !search && !tag) {
+      // 따로 세부설정없이 전체 조회
+      const results = await this.repository
+        .createQueryBuilder()
+        .select([
+          'title',
+          'content',
+          'tag',
+          'created_at',
+          'likes',
+          'views',
+          'userId',
+        ])
+        .where('deleted_at IS NULL')
+        .getRawMany();
 
-    return results;
+      return results;
+    } else {
+      const results = await this.repository
+        .createQueryBuilder()
+        .select([
+          'title',
+          'content',
+          'tag',
+          'created_at',
+          'likes',
+          'views',
+          'userId',
+        ])
+        .where('deleted_at IS NULL')
+        .andWhere('title like :search', {
+          search: `%${search}%`,
+        })
+        .orderBy(`${order}`, 'DESC')
+        .getRawMany();
+
+      // .andWhere('tag in (:tag)', { tag: tag })
+      return results;
+    }
   }
 
   async getOnePost(id: number) {
