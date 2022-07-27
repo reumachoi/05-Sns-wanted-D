@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -25,8 +26,12 @@ export class PostController {
   }
 
   @Get()
-  async getAllPost() {
-    return await this.service.getAllPost();
+  async getAllPost(
+    @Query('order') order: string,
+    @Query('search') search: string,
+    @Query('tag') tag: string,
+  ) {
+    return await this.service.getAllPost(order, search, tag);
   }
 
   @Get('/:id')
@@ -41,16 +46,28 @@ export class PostController {
     @Body() postDto: PostDto,
     @GetUser() user: User,
   ) {
-    return await this.service.updatePost(id, postDto, user);
+    const status = await this.service.updatePost(id, postDto, user);
+    return { status: status };
   }
 
   @Delete('/:id')
-  async deletePost(@Param('id') id: number) {
-    return await this.service.deletePost(id);
+  @UseGuards(AuthGuard('jwt'))
+  async deletePost(@Param('id') id: number, @GetUser() user: User) {
+    const status = await this.service.deletePost(id, user);
+    return { status: status };
   }
 
   @Patch('/:id/restore')
-  async restorePost(@Param('id') id: number) {
-    return await this.service.restorePost(id);
+  @UseGuards(AuthGuard('jwt'))
+  async restorePost(@Param('id') id: number, @GetUser() user: User) {
+    const status = await this.service.restorePost(id, user);
+    return { status: status };
+  }
+
+  @Get('/:id/like')
+  @UseGuards(AuthGuard('jwt'))
+  async likePost(@Param('id') id: number, @GetUser() user: User) {
+    const status = await this.service.likePost(id, user);
+    return { status: status };
   }
 }

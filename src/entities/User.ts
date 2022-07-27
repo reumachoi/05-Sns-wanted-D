@@ -6,6 +6,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Like } from './Like';
 import { Post } from './Post';
 import { Token } from './Token';
 
@@ -34,4 +35,7 @@ export class User {
 
   @OneToMany(() => Token, (token) => token.user)
   token: Token[];
+
+  @OneToMany(() => Like, (like) => like.user)
+  like: Like[];
 }

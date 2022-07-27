@@ -2,11 +2,12 @@ import {
   Entity,
   Column,
   CreateDateColumn,
-  DeleteDateColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
+import { Like } from './Like';
 import { User } from './User';
 
 @Entity()
@@ -38,6 +39,9 @@ export class Post {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
-  @DeleteDateColumn({ name: 'deleted_at' })
+  @Column({ nullable: true, name: 'deleted_at' })
   deletedAt: Date;
+
+  @OneToMany(() => Like, (like) => like.post)
+  like: Like[];
 }

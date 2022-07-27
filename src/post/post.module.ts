@@ -3,9 +3,10 @@ import { PostController } from './post.controller';
 import { PostService } from './post.service';
 import { Post } from '../entities/Post';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { Like } from '../entities/Like';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Post])],
+  imports: [TypeOrmModule.forFeature([Post, Like])],
   controllers: [PostController],
   providers: [PostService],
 })
