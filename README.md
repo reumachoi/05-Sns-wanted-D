@@ -70,7 +70,8 @@ B. 게시글
 ## ERD
 
 
-![스크린샷 2022-07-26 오전 11 18 26](https://user-images.githubusercontent.com/85995802/180911429-67d37023-7cf2-4355-bbab-fe2b19f75477.png)
+![스크린샷 2022-07-28 오후 6 18 24](https://user-images.githubusercontent.com/85995802/181470014-af202ef4-3236-4eba-b399-be495469ce77.png)
+
 
 ## 프로젝트 일정관리
 깃헙의 이슈와 프로젝트 칸반보드를 사용하여 일정을 관리하며 프로젝트를 진행했습니다   
