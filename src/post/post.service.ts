@@ -33,7 +33,7 @@ export class PostService {
     return await this.repository.save(post);
   }
 
-  async getAllPost(order = 'created_at', search: string, tag: string) {
+  async getAllPost(order: string, search: string, tag: string) {
     if (!order && !search && !tag) {
       // 따로 세부설정없이 전체조회
       const results = await this.repository
@@ -51,7 +51,7 @@ export class PostService {
         .getRawMany();
 
       return results;
-    } else {
+    } else if (order && search && tag) {
       // 정렬, 제목 검색, 해쉬태그 검색 일괄조건 전체조회
       const results = await this.repository
         .createQueryBuilder()
@@ -71,6 +71,63 @@ export class PostService {
         .andWhere('tag like :tag', { tag: `%#${tag}%` })
         .orderBy(`${order}`, 'DESC') // 조회수, 좋아요수 정렬시 동일순위인경우 최신순 정렬
         .addOrderBy('created_at', 'DESC')
+        .getRawMany();
+
+      return results;
+    } else if (order && !search && !tag) {
+      // 정렬 기준만 설정해서 목록조회 경우
+      const results = await this.repository
+        .createQueryBuilder()
+        .select([
+          'title',
+          'content',
+          'tag',
+          'created_at',
+          'likes',
+          'views',
+          'userId',
+        ])
+        .where('deleted_at IS NULL')
+        .orderBy(`${order}`, 'DESC') // 조회수, 좋아요수 정렬시 동일순위인경우 최신순 정렬
+        .addOrderBy('created_at', 'DESC')
+        .getRawMany();
+
+      return results;
+    } else if (!order && search && !tag) {
+      // 제목 키워드만 설정해서 목록조회 경우
+      const results = await this.repository
+        .createQueryBuilder()
+        .select([
+          'title',
+          'content',
+          'tag',
+          'created_at',
+          'likes',
+          'views',
+          'userId',
+        ])
+        .where('deleted_at IS NULL')
+        .andWhere('title like :search', {
+          search: `%${search}%`,
+        })
+        .getRawMany();
+
+      return results;
+    } else if (!order && !search && tag) {
+      // 태그 키워드만 설정해서 목록조회 경우
+      const results = await this.repository
+        .createQueryBuilder()
+        .select([
+          'title',
+          'content',
+          'tag',
+          'created_at',
+          'likes',
+          'views',
+          'userId',
+        ])
+        .where('deleted_at IS NULL')
+        .andWhere('tag like :tag', { tag: `%#${tag}%` }) // '서울'이라고 입력시 '#서울'로 검색
         .getRawMany();
 
       return results;
