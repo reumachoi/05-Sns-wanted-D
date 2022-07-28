@@ -11,6 +11,7 @@ import { Post } from 'src/entities/Post';
 import { Repository } from 'typeorm';
 import { User } from '../entities/User';
 import { PostDto } from './dto/post.dto';
+import { sizeof } from '../../dist/0.70789d512c2bac49f953.hot-update';
 
 @Injectable()
 export class PostService {
@@ -22,7 +23,6 @@ export class PostService {
   async createPost(postDto: PostDto, user: User) {
     const { title, content, tag } = postDto;
 
-    console.log(user);
     const post = this.repository.create({
       title: title,
       content: content,
@@ -34,104 +34,64 @@ export class PostService {
   }
 
   async getAllPost(order: string, search: string, tag: string) {
-    if (!order && !search && !tag) {
-      // 따로 세부설정없이 전체조회
-      const results = await this.repository
-        .createQueryBuilder()
-        .select([
-          'title',
-          'content',
-          'tag',
-          'created_at',
-          'likes',
-          'views',
-          'userId',
-        ])
-        .where('deleted_at IS NULL')
-        .getRawMany();
+    const query = this.repository
+      .createQueryBuilder()
+      .select([
+        'title',
+        'content',
+        'tag',
+        'created_at',
+        'likes',
+        'views',
+        'userId',
+      ])
+      .where('deleted_at IS NULL');
 
-      return results;
-    } else if (order && search && tag) {
+    if (order && search && tag) {
       // 정렬, 제목 검색, 해쉬태그 검색 일괄조건 전체조회
-      const results = await this.repository
-        .createQueryBuilder()
-        .select([
-          'title',
-          'content',
-          'tag',
-          'created_at',
-          'likes',
-          'views',
-          'userId',
-        ])
-        .where('deleted_at IS NULL')
+      return query
         .andWhere('title like :search', {
           search: `%${search}%`,
         })
-        .andWhere('tag like :tag', { tag: `%#${tag}%` })
-        .orderBy(`${order}`, 'DESC') // 조회수, 좋아요수 정렬시 동일순위인경우 최신순 정렬
-        .addOrderBy('created_at', 'DESC')
+        .orderBy(`${order}`, 'DESC')
         .getRawMany();
-
-      return results;
     } else if (order && !search && !tag) {
       // 정렬 기준만 설정해서 목록조회 경우
-      const results = await this.repository
-        .createQueryBuilder()
-        .select([
-          'title',
-          'content',
-          'tag',
-          'created_at',
-          'likes',
-          'views',
-          'userId',
-        ])
-        .where('deleted_at IS NULL')
-        .orderBy(`${order}`, 'DESC') // 조회수, 좋아요수 정렬시 동일순위인경우 최신순 정렬
-        .addOrderBy('created_at', 'DESC')
-        .getRawMany();
-
-      return results;
+      return query.orderBy(`${order}`, 'DESC').getRawMany();
     } else if (!order && search && !tag) {
       // 제목 키워드만 설정해서 목록조회 경우
-      const results = await this.repository
-        .createQueryBuilder()
-        .select([
-          'title',
-          'content',
-          'tag',
-          'created_at',
-          'likes',
-          'views',
-          'userId',
-        ])
-        .where('deleted_at IS NULL')
+      return query
         .andWhere('title like :search', {
           search: `%${search}%`,
         })
         .getRawMany();
-
-      return results;
     } else if (!order && !search && tag) {
       // 태그 키워드만 설정해서 목록조회 경우
-      const results = await this.repository
-        .createQueryBuilder()
-        .select([
-          'title',
-          'content',
-          'tag',
-          'created_at',
-          'likes',
-          'views',
-          'userId',
-        ])
-        .where('deleted_at IS NULL')
-        .andWhere('tag like :tag', { tag: `%#${tag}%` }) // '서울'이라고 입력시 '#서울'로 검색
-        .getRawMany();
-
-      return results;
+      return query.andWhere('tag like :tag', { tag: `%#${tag}%` }).getRawMany();
+    } else {
+      // 추가 설정없이 목록 조회
+      return query.getRawMany();
     }
+  }
+
+  async getPage(idx: number, size: number) {
+    size = size == null ? 10 : size; // 한페이지에 나타낼 게시글 수를 정하지 않은 경우 기본 10개 표시
+
+    return this.repository
+      .createQueryBuilder()
+      .select([
+        'title',
+        'content',
+        'tag',
+        'created_at',
+        'likes',
+        'views',
+        'userId',
+      ])
+      .where('deleted_at IS NULL')
+      .skip(idx)
+      .take(size)
+      .getRawMany();
   }
 
   async getOnePost(id: number) {
