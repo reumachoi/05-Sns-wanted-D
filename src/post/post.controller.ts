@@ -34,6 +34,12 @@ export class PostController {
     return await this.service.getAllPost(order, search, tag);
   }
 
+  @Get('/page')
+  @UseGuards(AuthGuard('jwt'))
+  async getPage(@Query('idx') idx: number, @Query('size') size: number) {
+    return await this.service.getPage(idx, size);
+  }
+
   @Get('/:id')
   async getOnePost(@Param('id') id: number) {
     return await this.service.getOnePost(id);
