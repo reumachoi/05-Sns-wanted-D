@@ -68,7 +68,7 @@ describe('AuthService', () => {
   });
 
   describe('로그인', () => {
-    it('실패 - 이메일&비밀번호 오류', async () => {
+    it('실패 - 이메일&비밀번호 오류인 경우', async () => {
       // Given
       const signInDto: SignInDto = {
         email: 't',
@@ -76,7 +76,7 @@ describe('AuthService', () => {
       };
 
       // When
-      userRepository.findOneBy.mockRejectedValue(undefined);
+      userRepository.findOneBy.mockResolvedValue(null);
 
       // Then
       try {
@@ -86,6 +86,19 @@ describe('AuthService', () => {
           new UnauthorizedException('로그인을 실패했습니다.'),
         );
       }
+    });
+  });
+
+  describe('토큰', () => {
+    it('성공 - 액세스 토큰이 잘 생성되는가', async () => {
+      // Given
+      mockJwtService.sign.mockResolvedValue('test');
+
+      // When
+      const result = await service.setAccessToken(1);
+
+      // Then
+      expect(result).toEqual('test');
     });
   });
 });
