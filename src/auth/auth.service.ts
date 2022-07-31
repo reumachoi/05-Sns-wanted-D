@@ -1,7 +1,11 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from 'src/entities/User';
+import { User } from '../entities/User';
 import { Repository } from 'typeorm';
 import { SignUpDto } from './dto/sign-up.dto';
 import { SignInDto } from './dto/sign-in.dto';
@@ -16,7 +20,12 @@ export class AuthService {
   ) {}
 
   async signUp(signUpDto: SignUpDto) {
-    return await this.repository.save(signUpDto);
+    try {
+      return await this.repository.save(signUpDto);
+    } catch (e) {
+      // 이메일 또는 닉네임이 다른 유저와 중복되는 경우 회원가입 실패
+      throw new ConflictException('회원가입 실패');
+    }
   }
 
   async signIn(signInDto: SignInDto) {
