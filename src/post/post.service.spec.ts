@@ -144,4 +144,142 @@ describe('PostService', () => {
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
+
+  describe('게시글 작성, 수정, 삭제, 복구', () => {
+    it('성공 - 게시글 작성', async () => {
+      // Given
+      const post = {
+        title: postDto.title,
+        content: postDto.content,
+        tag: postDto.tag,
+        user: user,
+      };
+
+      // When
+      postRepository.save.mockResolvedValue(post);
+
+      // Then
+      const result = await service.createPost(postDto, user);
+      expect(result).toEqual(post);
+    });
+
+    it('실패 - 없거나 삭제된 게시글 수정', async () => {
+      // When
+      postRepository
+        .createQueryBuilder()
+        .leftJoinAndSelect()
+        .where()
+        .andWhere()
+        .getOne.mockResolvedValue(null);
+
+      // Then
+      try {
+        await service.updatePost(1, postDto, user);
+      } catch (error) {
+        expect(error).toEqual(
+          new BadRequestException(
+            '해당 게시물을 찾을 수 없어 수정을 실패했습니다.',
+          ),
+        );
+      }
+    });
+
+    it('실패 -작성자가 아닌 게시글 수정', async () => {
+      // When
+      postRepository
+        .createQueryBuilder()
+        .leftJoinAndSelect()
+        .where()
+        .andWhere()
+        .getOne.mockResolvedValue(postDetail);
+
+      // Then
+      try {
+        await service.updatePost(1, postDto, user);
+      } catch (error) {
+        expect(error).toEqual(
+          new ForbiddenException(
+            '게시글 작성자가 아니므로 수정을 실패했습니다.',
+          ),
+        );
+      }
+    });
+
+    it('실패 - 작성자가 아닌 게시글 삭제', async () => {
+      // When
+      postRepository
+        .createQueryBuilder()
+        .leftJoinAndSelect()
+        .where()
+        .getOne.mockResolvedValue(postDetail);
+
+      // Then
+      try {
+        await service.deletePost(1, user);
+      } catch (error) {
+        expect(error).toEqual(
+          new ForbiddenException(
+            '게시글 작성자가 아니므로 삭제를 실패했습니다.',
+          ),
+        );
+      }
+    });
+
+    it('실패 - 삭제된 게시글 삭제', async () => {
+      // When
+      postRepository
+        .createQueryBuilder()
+        .leftJoinAndSelect()
+        .where()
+        .getOne.mockResolvedValue(deletedPostDetail);
+
+      // Then
+      try {
+        // 게시글 작성자가 동일하지만 삭제된 게시글을 삭제하는 경우
+        await service.deletePost(1, user2);
+      } catch (error) {
+        expect(error).toEqual(
+          new ForbiddenException('해당 게시글을 삭제할 수 없습니다.'),
+        );
+      }
+    });
+
+    it('실패 - 작성자가 아닌 게시글 복구', async () => {
+      // When
+      postRepository
+        .createQueryBuilder()
+        .leftJoinAndSelect()
+        .where()
+        .getOne.mockResolvedValue(postDetail);
+
+      // Then
+      try {
+        await service.restorePost(1, user);
+      } catch (error) {
+        expect(error).toEqual(
+          new ForbiddenException(
+            '게시글 작성자가 아니므로 복구를 실패했습니다.',
+          ),
+        );
+      }
+    });
+
+    it('실패 - 없는 게시글 또는 삭제되지 않은 게시글 복구', async () => {
+      // When
+      postRepository
+        .createQueryBuilder()
+        .leftJoinAndSelect()
+        .where()
+        .getOne.mockResolvedValue(postDetail);
+
+      // Then
+      try {
+        await service.restorePost(1, user2);
+      } catch (error) {
+        expect(error).toEqual(
+          new ForbiddenException('해당 게시글을 복구할 수 없습니다.'),
+        );
+      }
+    });
+  });
 });
