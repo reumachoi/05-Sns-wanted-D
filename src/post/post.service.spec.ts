@@ -282,4 +282,87 @@ describe('PostService', () => {
       }
     });
   });
+
+  describe('게시글 조회', () => {
+    it('성공 - 게시글 상세조회시 조회수 증가', async () => {
+      // Given
+      postDetail.views += 1;
+
+      // When
+      postRepository
+        .createQueryBuilder()
+        .update()
+        .set()
+        .where()
+        .andWhere()
+        .execute.mockResolvedValue(postDetail);
+
+      // Then
+      const result = await service.viewCountUp(1);
+      expect(result).toEqual(postDetail);
+    });
+
+    it('성공 - 게시글 상세조회 글 확인', async () => {
+      // When
+      postRepository
+        .createQueryBuilder()
+        .select()
+        .where()
+        .andWhere()
+        .getRawOne.mockResolvedValue(postDetail);
+
+      // Then
+      const result = await service.getOnePost(1);
+      expect(result).toEqual(postDetail);
+    });
+
+    it('실패 - 게시글 상세조회 글 확인', async () => {
+      // When
+      postRepository
+        .createQueryBuilder()
+        .select()
+        .where()
+        .andWhere()
+        .getRawOne.mockResolvedValue(undefined);
+
+      // Then
+      try {
+        await service.getOnePost(1);
+      } catch (error) {
+        expect(error).toEqual(
+          new NotFoundException('해당 게시글을 찾을 수 없습니다.'),
+        );
+      }
+    });
+
+    it('성공 - 게시글 목록조회', async () => {
+      // When
+      postRepository
+        .createQueryBuilder()
+        .select()
+        .where()
+        .andWhere()
+        .orderBy()
+        .getRawMany.mockResolvedValue(posts);
+
+      // Then
+      const result = await service.getAllPost('views', 'title', 'tag');
+      expect(result).toEqual(posts);
+    });
+
+    it('성공 - 게시글 페이지조회', async () => {
+      // When
+      postRepository
+        .createQueryBuilder()
+        .select()
+        .where()
+        .skip()
+        .take()
+        .getRawMany.mockResolvedValue(posts);
+
+      // Then
+      const result = await service.getPage(0, 2);
+      expect(result).toEqual(posts);
+    });
+  });
 });
