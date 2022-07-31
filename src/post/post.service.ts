@@ -93,13 +93,8 @@ export class PostService {
   }
 
   async getOnePost(id: number) {
-    await this.repository
-      .createQueryBuilder()
-      .update(Post)
-      .set({ views: () => 'views + 1' })
-      .where('id = :id', { id: id })
-      .andWhere('deleted_at IS NULL')
-      .execute();
+    // 조회수 증가
+    this.viewCountUp(id);
 
     const result = await this.repository
       .createQueryBuilder()
@@ -112,6 +107,16 @@ export class PostService {
       throw new NotFoundException('해당 게시글을 찾을 수 없습니다.');
     }
     return result;
+  }
+
+  async viewCountUp(id: number) {
+    return await this.repository
+      .createQueryBuilder()
+      .update(Post)
+      .set({ views: () => 'views + 1' })
+      .where('id = :id', { id: id })
+      .andWhere('deleted_at IS NULL')
+      .execute();
   }
 
   async updatePost(id: number, postDto: PostDto, user: User) {
@@ -136,14 +141,14 @@ export class PostService {
 
     const { title, content, tag } = postDto;
 
-    const result = await this.repository
+    await this.repository
       .createQueryBuilder()
       .update(Post)
       .set({ title: title, content: content, tag: tag })
       .where('post.id = :id', { id: id })
       .execute();
 
-    return result.affected === 1 ? '글 수정 성공!' : '글 수정 실패!';
+    return '글 수정 성공!';
   }
 
   async deletePost(id: number, user: User) {
@@ -191,20 +196,19 @@ export class PostService {
       throw new ForbiddenException('해당 게시글을 복구할 수 없습니다.');
     }
 
-    const result = await this.repository
+    await this.repository
       .createQueryBuilder()
       .update(Post)
       .set({ deletedAt: null })
       .where('post.id = :id', { id: id })
       .execute();
-    return result.affected === 1 ? '글 복구 성공!' : '글 복구 실패!';
+    return '글 복구 성공!';
   }
 
   async likePost(id: number, user: User) {
     // 해당 게시물 조회
     const post = await this.repository
       .createQueryBuilder('post')
-      .select()
       .leftJoinAndSelect('post.user', 'user')
       .where('post.id = :id', { id: id })
       .andWhere('post.deleted_at IS NULL')
@@ -223,36 +227,39 @@ export class PostService {
       .andWhere('like.userId = :uid', { uid: user.id })
       .getOne();
 
-    // 이미 해당 게시물에 좋아요를 누른경우 -> 좋아요 카운트 다운!
+    // 이미 해당 게시물에 좋아요를 누른경우 -> 좋아요 수 감소
     if (likeData) {
-      // 게시물 좋아요수 감소
-      await this.repository
-        .createQueryBuilder('post')
-        .update(Post)
-        .set({ likes: () => 'likes - 1' })
-        .where('post.id = :id', { id: id })
-        .execute();
-
       // 좋아요 테이블에서 해당글 좋아요 정보 삭제
       await this.likeRepository.delete(likeData.id);
+      await this.updateLikeInPostTable('down', id);
+
       return '글 좋아요 취소!';
     }
 
-    // 테이블에 새로 정보 저장좋아요 -> 카운트 업!
-    const data = this.likeRepository.create({
+    await this.likeRepository.save({
       post: { id: post.id },
       user: { id: user.id },
     });
-    await this.likeRepository.save(data);
 
-    const result = await this.repository
-      .createQueryBuilder('post')
-      .update(Post)
-      .set({ likes: () => 'likes + 1' })
-      .where('post.id = :id', { id: id })
-      .andWhere('post.deleted_at IS NULL')
-      .execute();
+    await this.updateLikeInPostTable('up', id);
+    return '글 좋아요 성공!';
+  }
 
-    return result.affected === 1 ? '글 좋아요 성공!' : '글 좋아요 실패!';
+  // 좋아요 관련 Post 테이블 업데이트
+  async updateLikeInPostTable(upDown: string, id: number) {
+    const query = this.repository.createQueryBuilder('post').update(Post);
+
+    if (upDown === 'up') {
+      return query
+        .set({ likes: () => 'likes + 1' })
+        .where('post.id = :id', { id: id })
+        .andWhere('post.deleted_at IS NULL')
+        .execute();
+    } else {
+      return query
+        .set({ likes: () => 'likes - 1' })
+        .where('post.id = :id', { id: id })
+        .execute();
+    }
   }
 }
