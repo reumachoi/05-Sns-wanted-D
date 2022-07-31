@@ -8,8 +8,16 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('SNS')
-    .setDescription('프리온보딩 백엔드코스 D팀 최아름')
+    .setDescription('프리온보딩 백엔드코스 개인과제 sns 서비스')
     .setVersion('1.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+      },
+      'access-token',
+    )
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);

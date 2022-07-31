@@ -2,7 +2,13 @@ import { Body, Controller, Post } from '@nestjs/common';
 import { SignUpDto } from './dto/sign-up.dto';
 import { AuthService } from './auth.service';
 import { SignInDto } from './dto/sign-in.dto';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiCreatedResponse,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 @Controller('/sns/auth')
 @ApiTags('유저 API')
@@ -20,7 +26,6 @@ export class AuthController {
 
   @Post('/sign-in')
   @ApiOperation({ summary: '유저 로그인' })
-  @ApiResponse({ status: 201, description: '로그인 성공입니다!' })
   @ApiResponse({ status: 401, description: '로그인 실패입니다!' })
   @ApiBody({ type: SignInDto })
   async signIn(@Body() signInDto: SignInDto) {
