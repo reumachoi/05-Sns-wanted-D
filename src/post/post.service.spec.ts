@@ -365,4 +365,86 @@ describe('PostService', () => {
       expect(result).toEqual(posts);
     });
   });
+
+  describe('게시글 좋아요', () => {
+    it('실패 - 게시글을 찾을 수 없는 경우', async () => {
+      // When
+      postRepository
+        .createQueryBuilder()
+        .leftJoinAndSelect()
+        .where()
+        .andWhere()
+        .getOne.mockResolvedValue(null);
+
+      // Then
+      try {
+        await service.likePost(1, user);
+      } catch (error) {
+        expect(error).toEqual(
+          new BadRequestException(
+            '해당 게시물을 찾을 수 없어 좋아요를 실패했습니다.',
+          ),
+        );
+      }
+    });
+
+    it('성공 - 좋아요 성공시 Post, Like 테이블 업데이트', async () => {
+      // Given
+      postDetail.likes++;
+      const updateResult = { generatedMaps: [], raw: [], affected: 1 };
+      const data = {
+        post: post,
+        user: user,
+      };
+
+      // When
+      likeRepository
+        .createQueryBuilder()
+        .leftJoinAndSelect()
+        .where()
+        .andWhere()
+        .getOne.mockResolvedValue(null);
+
+      likeRepository
+        .createQueryBuilder()
+        .update()
+        .set()
+        .where()
+        .andWhere()
+        .execute.mockResolvedValue(updateResult);
+
+      likeRepository.save.mockResolvedValue(data);
+
+      // Then
+      await service.updateLikeInPostTable('up', 1);
+      const result = await service.likePost(1, user);
+      expect(result).toEqual('글 좋아요 성공!');
+    });
+
+    it('성공 - 좋아요 취소시 Post, Like 테이블 업데이트', async () => {
+      // Given
+      postDetail.likes--;
+      const deleteResult = { raw: [], affected: 1 };
+      const likeData = {
+        id: 1,
+        post: post,
+        user: user,
+      };
+
+      // When
+      likeRepository
+        .createQueryBuilder()
+        .leftJoinAndSelect()
+        .where()
+        .andWhere()
+        .getOne.mockResolvedValue(likeData);
+
+      likeRepository.delete.mockResolvedValue(deleteResult);
+
+      // Then
+      await service.updateLikeInPostTable('down', 1);
+      const result = await service.likePost(1, user);
+      expect(result).toEqual('글 좋아요 취소!');
+    });
+  });
 });
