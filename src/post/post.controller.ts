@@ -5,6 +5,7 @@ import {
   Get,
   HttpCode,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   Query,
@@ -59,14 +60,18 @@ export class PostController {
   @Get('/page')
   @HttpCode(200)
   @ApiOperation({ summary: '게시글 전체조회 페이징' })
-  async getPage(@Query('idx') idx: number, @Query('size') size: number) {
+  @UseGuards(AuthGuard('jwt'))
+  async getPage(
+    @Query('idx', ParseIntPipe) idx: number,
+    @Query('size', ParseIntPipe) size: number,
+  ) {
     return await this.service.getPage(idx, size);
   }
 
-  @Get('/:id')
+  @Get('/:id') 
   @HttpCode(200)
   @ApiOperation({ summary: '게시글 상세조회' })
-  async getOnePost(@Param('id') id: number) {
+  async getOnePost(@Param('id', ParseIntPipe) id: number) {
     return await this.service.getOnePost(id);
   }
 
@@ -75,7 +80,7 @@ export class PostController {
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth('access-token')
   async updatePost(
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
     @Body() postDto: PostDto,
     @GetUser() user: User,
   ) {
@@ -87,7 +92,10 @@ export class PostController {
   @ApiOperation({ summary: '게시글 삭제' })
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth('access-token')
-  async deletePost(@Param('id') id: number, @GetUser() user: User) {
+  async deletePost(
+    @Param('id', ParseIntPipe) id: number,
+    @GetUser() user: User,
+  ) {
     const status = await this.service.deletePost(id, user);
     return { status: status };
   }
@@ -96,7 +104,10 @@ export class PostController {
   @ApiOperation({ summary: '게시글 복구' })
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth('access-token')
-  async restorePost(@Param('id') id: number, @GetUser() user: User) {
+  async restorePost(
+    @Param('id', ParseIntPipe) id: number,
+    @GetUser() user: User,
+  ) {
     const status = await this.service.restorePost(id, user);
     return { status: status };
   }
@@ -106,7 +117,7 @@ export class PostController {
   @ApiOperation({ summary: '게시글 좋아요' })
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth('access-token')
-  async likePost(@Param('id') id: number, @GetUser() user: User) {
+  async likePost(@Param('id', ParseIntPipe) id: number, @GetUser() user: User) {
     const status = await this.service.likePost(id, user);
     return { status: status };
   }
