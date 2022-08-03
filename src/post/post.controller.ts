@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   Query,
@@ -36,19 +37,22 @@ export class PostController {
 
   @Get('/page')
   @UseGuards(AuthGuard('jwt'))
-  async getPage(@Query('idx') idx: number, @Query('size') size: number) {
+  async getPage(
+    @Query('idx', ParseIntPipe) idx: number,
+    @Query('size', ParseIntPipe) size: number,
+  ) {
     return await this.service.getPage(idx, size);
   }
 
   @Get('/:id')
-  async getOnePost(@Param('id') id: number) {
+  async getOnePost(@Param('id', ParseIntPipe) id: number) {
     return await this.service.getOnePost(id);
   }
 
   @Patch('/:id')
   @UseGuards(AuthGuard('jwt'))
   async updatePost(
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
     @Body() postDto: PostDto,
     @GetUser() user: User,
   ) {
@@ -58,21 +62,27 @@ export class PostController {
 
   @Delete('/:id')
   @UseGuards(AuthGuard('jwt'))
-  async deletePost(@Param('id') id: number, @GetUser() user: User) {
+  async deletePost(
+    @Param('id', ParseIntPipe) id: number,
+    @GetUser() user: User,
+  ) {
     const status = await this.service.deletePost(id, user);
     return { status: status };
   }
 
   @Patch('/:id/restore')
   @UseGuards(AuthGuard('jwt'))
-  async restorePost(@Param('id') id: number, @GetUser() user: User) {
+  async restorePost(
+    @Param('id', ParseIntPipe) id: number,
+    @GetUser() user: User,
+  ) {
     const status = await this.service.restorePost(id, user);
     return { status: status };
   }
 
   @Get('/:id/like')
   @UseGuards(AuthGuard('jwt'))
-  async likePost(@Param('id') id: number, @GetUser() user: User) {
+  async likePost(@Param('id', ParseIntPipe) id: number, @GetUser() user: User) {
     const status = await this.service.likePost(id, user);
     return { status: status };
   }
