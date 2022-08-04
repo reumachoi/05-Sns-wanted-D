@@ -10,6 +10,6 @@ services:
 
     environment:
       MYSQL_ROOT_PASSWORD: 'admin'
-
+      MYSQL_HOST: 'localhost'
       MYSQL_PASSWORD: 'root'
       MYSQL_DATABASE: 'sns'
