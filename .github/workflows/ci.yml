@@ -38,7 +38,7 @@ jobs:
       run: npm install
     
     - name: nestjs/typeorm
-    - run: npm i @nestjs/typeorm
+      run: npm i @nestjs/typeorm
     
     - name: Test unit
       run: npm test
