@@ -37,8 +37,8 @@ jobs:
       if: steps.cache.outputs.cache-hit != 'true'
       run: npm install
     
-    - name: nestjs/typeorm
-      run: npm i @nestjs/typeorm
+    - name: Use Docker-compose
+      run: docker-compose up
     
     - name: Test unit
       run: npm test
