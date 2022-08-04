@@ -37,11 +37,11 @@ jobs:
       if: steps.cache.outputs.cache-hit != 'true'
       run: npm install
     
-    - name: Use Docker-compose
-      run: docker-compose up
-    
     - name: Test unit
       run: npm test
+    
+    - name: Use Docker-compose
+      run: docker-compose up
       
     - name: Build
       run: npm run start:dev
