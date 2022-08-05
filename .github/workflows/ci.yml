@@ -40,8 +40,8 @@ jobs:
     - name: Test unit
       run: npm test
     
-    - name: Use Docker-compose
-      run: docker-compose up
+#     - name: Use Docker-compose
+#       run: docker-compose up
       
     - name: Build
       run: npm run start:dev
