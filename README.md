@@ -7,7 +7,7 @@
 ## 사용 기술
 
 - Typescript, NestJS
-- JWT
+- JWT, MySQL
 - Github
 
 ## 서비스 개요
@@ -53,11 +53,15 @@ B. 게시글
 | POST | /sns/auth/sign-in | 로그인 | 401 Unauthorized |
 | POST | /sns/posts | 게시글 작성 |  |
 | GET | /sns/posts | 게시글 목록 조회 |  |
-| GET | /sns/posts/<id> | 게시글 상세조회 | 404 NotFoundException |
-| PATCH | /sns/posts/<id> | 게시글 수정 | 400 BadRequestException / 403 ForbiddenException |
-| PATCH | /sns/posts/<id>/restore | 게시글 복구 | 403 ForbiddenException (이중복구 / 작성자 본인이 아닌경우) |
-| DELETE | /sns/posts/<id> | 게시글 삭제 | 403 ForbiddenException (이중삭제 / 작성자 본인이 아닌경우) |
-| GET | /sns/posts/<id>/like | 게시글 좋아요 | 400 BadRequestException  |
+| GET | /sns/posts?order={order}&search={search}&tag={tag>} | 게시글 목록 조건설정 조회 |  |
+| GET | /sns/posts/{id} | 게시글 상세조회 | 404 NotFoundException |
+| PATCH | /sns/posts/{id} | 게시글 수정 | 400 BadRequestException / 403 ForbiddenException |
+| PATCH | /sns/posts/{id}/restore | 게시글 복구 | 403 ForbiddenException (이중복구 / 작성자 본인이 아닌경우) |
+| DELETE | /sns/posts/{id} | 게시글 삭제 | 403 ForbiddenException (이중삭제 / 작성자 본인이 아닌경우) |
+| GET | /sns/posts/{id}/like | 게시글 좋아요 | 400 BadRequestException  |
+
+## Swagger
+<img width="1476" alt="스크린샷 2022-08-06 오후 2 04 37" src="https://user-images.githubusercontent.com/85995802/183234995-f9494e11-ee8e-49f9-8f13-468df2fff1af.png">
 
 ## ERD
 
