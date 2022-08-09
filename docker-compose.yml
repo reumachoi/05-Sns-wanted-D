@@ -16,4 +16,3 @@ services:
       MYSQL_HOST: 'localhost'
       MYSQL_PASSWORD: 'root'
       MYSQL_DATABASE: 'sns'
-      TZ: Asia/Seoul
